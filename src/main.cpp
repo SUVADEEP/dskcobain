@@ -28,7 +28,7 @@ int main() {
     orchestrator.startStreaming();
     
     // Run for 1ms (8 microframes)
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     
     orchestrator.stopStreaming();
     orchestrator.printStatistics();

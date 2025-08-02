@@ -1,32 +1,70 @@
-# USB Isochronous Transfer Simulation
+# USB Audio Class Microframe Simulator
 
-A pure USB isochronous transfer simulator that mimics real USB Audio Class behavior with accurate timing and callback-based packet handling.
+A real-time USB Audio Class simulation that mimics actual USB isochronous transfer behavior with precise 125μs microframe timing and lock-free ring buffers.
 
 ## 🎯 Project Overview
 
-This project implements a **USB isochronous transfer simulation** that behaves like real USB Audio Class devices:
+This project implements a **USB Audio Class microframe simulation** that accurately reproduces real USB audio streaming behavior:
 
 - **125μs microframes** (High Speed USB timing)
-- **1ms audio frames** (8 microframes per frame)
-- **Callback-based packet handling** (like libusb)
-- **Efficient streaming** with error handling
-- **No audio format dependencies** - pure USB protocol
+- **384 bytes per microframe** (USB Audio Class specification)
+- **Lock-free ring buffers** using miniaudio's `ma_rb` API
+- **Producer-Consumer pattern** with separate threads
+- **Cross-platform logging** (Android + standard C++)
+- **Modular architecture** with separate core and USB libraries
 
 ## 📁 Project Structure
 
 ```
 ds_kcobain/
 ├── include/kcobain/
-│   └── usb_iso_transfer.h    # USB transfer simulation header
+│   └── logger.h              # Cross-platform logging system
 ├── src/
-│   ├── main.cpp              # Demo application with usage examples
-│   └── usb_iso_transfer.cpp  # USB transfer implementation
+│   ├── main.cpp              # Main application with buffer initialization
+│   ├── logger.cpp            # Logger implementation
+│   ├── miniaudio_impl.cpp    # Miniaudio implementation
+│   └── core/                 # Core audio components
+│       ├── audio_rb_controller.h/cpp    # Ring buffer management
+│       ├── iaudio_producer.h            # Producer interface
+│       ├── iaudio_consumer.h            # Consumer interface
+│       ├── usb_audio_producer.h/cpp     # USB audio producer
+│       ├── usb_audio_consumer.h/cpp     # USB audio consumer
+│       └── usb_audio_orchestrator.h/cpp # Pipeline orchestration
 ├── external/
-│   └── miniaudio.h           # (Not used - pure USB simulation)
+│   └── miniaudio.h           # Miniaudio library (single header)
 ├── build/                    # Build output (generated)
-├── CMakeLists.txt            # Build configuration
+├── CMakeLists.txt            # Build configuration with modular libraries
 └── README.md                # This file
 ```
+
+## 🏗️ Architecture
+
+### **Modular Library Design**
+
+The project uses a modular architecture with separate static libraries:
+
+```
+kcobain_core (Static Library)
+├── logger.cpp
+├── miniaudio_impl.cpp
+└── audio_rb_controller.cpp
+
+kcobain_usb (Static Library)
+├── usb_audio_producer.cpp
+├── usb_audio_consumer.cpp
+└── usb_audio_orchestrator.cpp
+
+kcobain (Executable)
+└── main.cpp
+```
+
+### **Component Responsibilities**
+
+1. **`audio_rb_controller`**: Manages miniaudio's `ma_rb` ring buffer
+2. **`usb_audio_producer`**: Generates audio data and writes to buffer
+3. **`usb_audio_consumer`**: Reads from buffer at USB timing
+4. **`usb_audio_orchestrator`**: Coordinates producer and consumer threads
+5. **`main.cpp`**: Initializes buffer and starts the simulation
 
 ## 🚀 Building the Project
 
@@ -53,7 +91,7 @@ cmake ..
 make
 
 # Run the application
-./bin/kcobain
+./kcobain
 ```
 
 #### **Custom Logger Tag Build**
@@ -108,7 +146,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
 # Build for Android
 make
 
-# The binary will be in build_android/bin/kcobain
+# The binary will be in build_android/kcobain
 ```
 
 #### **Android Build Script**
@@ -146,88 +184,102 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
       -DANDROID_PLATFORM=android-33 \
       ..
 ```
+
 ## 🎵 Features
 
-### USB Protocol Simulation
+### USB Audio Class Simulation
 
-- **High Speed USB (480 Mbps)** timing simulation
-- **125μs microframe accuracy** using high-resolution clock
-- **1ms frame processing** (8 microframes per audio frame)
-- **Isochronous transfer** with proper packet structure
+- **125μs microframe timing** using high-resolution clock
+- **384 bytes per microframe** (USB Audio Class specification)
+- **Lock-free ring buffers** for efficient inter-thread communication
+- **Producer-Consumer pattern** with separate threads
+- **Underrun/Overrun detection** and statistics
 
-### libusb-Style Interface
+### Core Components
 
+#### **Ring Buffer Controller**
 ```cpp
-// Configure endpoint
-transfer.configureEndpoint(0x01, 384, 1);  // Endpoint, max packet size, interval
-
-// Set callback
-transfer.setPacketCallback(packetCallback);
-
-// Start transfer
-transfer.startTransfer();
-
-// Submit data
-transfer.submitPacket(data);
-transfer.submitFrame(frame);
-
-// Get statistics
-transfer.getTransferRate();  // packets per second
-transfer.getPacketsSent();
-transfer.getErrors();
+kcobain::audio_rb_controller buffer_controller;
+buffer_controller.initialize(30720);  // 80 microframes × 384 bytes
 ```
 
-### Error Handling
+#### **USB Audio Producer**
+- Generates 32-bit float audio data
+- Writes to ring buffer at maximum speed
+- Tracks overrun conditions
 
-- **Underrun detection** - when no data is available
-- **Overrun protection** - buffer full conditions
-- **Timeout handling** - timing violations
-- **Error reporting** - detailed error codes and statistics
+#### **USB Audio Consumer**
+- Reads from ring buffer every 125μs
+- Simulates USB microframe consumption
+- Detects underrun conditions
+
+#### **Orchestrator**
+- Manages producer and consumer threads
+- Provides statistics and monitoring
+- Handles start/stop operations
+
+### Cross-Platform Logging
+
+```cpp
+LOG_INFO("🎵 USB Audio Class Microframe Simulator");
+LOG_WARN("USB underrun: expected 384 bytes, got " + std::to_string(bytesAcquired));
+LOG_ERROR("Failed to initialize buffer controller");
+```
 
 ## 📊 Usage Examples
 
-### Basic Transfer
+### Basic Simulation
 
 ```cpp
-void packetCallback(const UsbIsoTransfer::IsoPacket& packet) {
-    if (packet.valid) {
-        // Process valid packet data
-        std::cout << "Packet: " << packet.data.size() << " bytes" << std::endl;
-    } else {
-        // Handle error
-        std::cout << "Error: " << packet.errorCode << std::endl;
+#include "core/audio_rb_controller.h"
+#include "core/usb_audio_orchestrator.h"
+
+int main() {
+    // Initialize buffer controller in main
+    kcobain::audio_rb_controller buffer_controller;
+    size_t bufferSizeBytes = 30720;  // 80 microframes × 384 bytes
+    
+    if (!buffer_controller.initialize(bufferSizeBytes)) {
+        LOG_ERROR("Failed to initialize buffer controller");
+        return 1;
     }
+    
+    // Create orchestrator with external buffer controller
+    kcobain::usb_audio_orchestrator orchestrator(&buffer_controller, 384);
+    orchestrator.startStreaming();
+    
+    // Run simulation
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    
+    orchestrator.stopStreaming();
+    orchestrator.printStatistics();
+    
+    return 0;
 }
-
-UsbIsoTransfer transfer;
-transfer.configureEndpoint(0x01, 384, 1);
-transfer.setPacketCallback(packetCallback);
-transfer.startTransfer();
-
-// Submit data
-std::vector<uint8_t> data(384, 0xAA);
-transfer.submitPacket(data);
 ```
 
-### Frame-Based Transfer
+### Custom Buffer Configuration
 
 ```cpp
-// Submit multiple packets at once (1ms frame)
-std::vector<std::vector<uint8_t> > frame;
-for (int i = 0; i < 8; ++i) {
-    frame.push_back(generateData(192));
-}
-transfer.submitFrame(frame);
+// Different buffer sizes for different use cases
+size_t smallBuffer = 3072;   // 8 microframes (1ms)
+size_t mediumBuffer = 30720; // 80 microframes (10ms)
+size_t largeBuffer = 122880; // 320 microframes (40ms)
+
+kcobain::audio_rb_controller buffer_controller;
+buffer_controller.initialize(mediumBuffer);
 ```
 
-### Error Handling
+### Statistics Monitoring
 
 ```cpp
-// Check for errors
-if (transfer.getErrors() > 0) {
-    std::cout << "Last error: " << transfer.getLastError() << std::endl;
-    transfer.clearErrors();
-}
+// Get detailed statistics
+orchestrator.printStatistics();
+
+// Output includes:
+// - Total frames produced/consumed
+// - Overrun/underrun counts
+// - Timing accuracy metrics
 ```
 
 ## 🔧 USB Timing Details
@@ -235,75 +287,74 @@ if (transfer.getErrors() > 0) {
 ### Microframe Timing
 
 - **Base unit**: 125μs (High Speed USB)
-- **Audio polling**: 1ms intervals (bInterval = 1)
-- **Frame structure**: 8 microframes per 1ms frame
+- **Audio polling**: 1ms intervals (8 microframes per frame)
+- **Packet size**: 384 bytes per microframe
 
-### Packet Processing
-
-```
-Time:    0ms    1ms    2ms    3ms
-         |      |      |      |
-Micro:   0-7    8-15   16-23  24-31
-         |      |      |      |
-Frame:   0      1      2      3
-```
-
-### Bandwidth Calculation
+### Buffer Sizing
 
 ```
-Bytes per second = SampleRate × Channels × (BitDepth / 8)
-Bytes per millisecond = Bytes per second / 1000
-Packets per millisecond = 8 (microframes)
-Bytes per packet = Bytes per millisecond / 8
+Buffer Size = Microframes × Bytes per Microframe
+Example: 80 microframes × 384 bytes = 30,720 bytes
+```
+
+### Audio Data Calculation
+
+```
+Bytes per microframe = (SampleRate × 125μs × BitDepth × Channels) / 8
+Example: (96000 × 0.000125 × 32 × 2) / 8 = 96 bytes
 ```
 
 ## 🧪 Testing Scenarios
 
-The demo application includes:
+The simulation includes:
 
-1. **Basic Transfer** - Single packet submission
-2. **Frame Transfer** - Multiple packets per frame
-3. **Error Handling** - Underrun simulation
-4. **Statistics** - Performance monitoring
+1. **Basic Microframe Transfer** - 384 bytes every 125μs
+2. **Buffer Underrun Detection** - When consumer starves
+3. **Buffer Overrun Detection** - When producer writes too fast
+4. **Timing Accuracy** - High-resolution clock validation
+5. **Statistics Collection** - Performance monitoring
 
 ## 📈 Performance Characteristics
 
-- **Latency**: ~125μs (microframe timing)
-- **Throughput**: Up to 480 Mbps (theoretical)
-- **Accuracy**: High-resolution clock timing
-- **Efficiency**: No busy waiting, proper synchronization
+- **Latency**: 125μs (microframe timing)
+- **Throughput**: 384 bytes per microframe
+- **Buffer Efficiency**: Lock-free ring buffer operations
+- **Thread Safety**: Single producer, single consumer
+- **Timing Accuracy**: High-resolution clock synchronization
 
 ## 🔍 Troubleshooting
 
 ### Common Issues
 
-1. **High error rates**: Check data submission timing
-2. **Buffer full errors**: Reduce submission rate
-3. **Timing issues**: Verify system clock accuracy
+1. **High underrun rates**: Producer not keeping up with consumer
+2. **High overrun rates**: Consumer not reading fast enough
+3. **Timing drift**: System clock accuracy issues
+4. **Buffer initialization failures**: Insufficient memory
 
 ### Debug Information
 
-The application provides detailed output:
-- Packet processing details
-- Timing information
-- Error statistics
-- Performance metrics
+The application provides detailed logging:
+- Buffer initialization status
+- Producer/consumer timing
+- Underrun/overrun detection
+- Performance statistics
 
 ## 🤝 Contributing
 
 ### Development Guidelines
 
 1. **Maintain USB timing accuracy**
-2. **Follow libusb patterns**
-3. **Add comprehensive error handling**
-4. **Test with various packet sizes**
+2. **Follow miniaudio naming conventions**
+3. **Use lock-free patterns where possible**
+4. **Add comprehensive error handling**
+5. **Test with various buffer sizes**
 
 ### Adding Features
 
-- **New transfer types**: Bulk, interrupt transfers
-- **Multiple endpoints**: Concurrent transfers
+- **New audio formats**: Different sample rates/bit depths
+- **Multiple endpoints**: Concurrent audio streams
 - **Advanced timing**: SuperSpeed USB simulation
-- **Performance optimization**: Lock-free buffers
+- **Performance optimization**: SIMD operations
 
 ## 📄 License
 
@@ -312,9 +363,9 @@ This project is provided as-is for educational and development purposes.
 ## 🙏 Acknowledgments
 
 - **USB-IF**: USB Audio Class specification
-- **libusb**: Reference implementation patterns
+- **Miniaudio**: Lock-free ring buffer implementation
 - **USB Audio Class**: Protocol documentation
 
 ---
 
-**Note**: This is a simulation project for USB protocol development and testing. It does not require actual USB hardware.
+**Note**: This is a simulation project for USB Audio Class development and testing. It accurately reproduces USB timing and behavior without requiring actual USB hardware.
