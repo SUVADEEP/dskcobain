@@ -1,0 +1,409 @@
+#include <iostream>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include <cmath>
+#include <iomanip>
+#include <atomic>
+#include <queue>
+#include <mutex>
+#include <fstream>
+#include <string>
+#include <functional>
+
+// Miniaudio header
+#define MINIAUDIO_IMPLEMENTATION
+#include "../external/miniaudio.h"
+
+namespace kcobain {
+
+// PCM frame structure
+struct PcmFrame {
+    float left;   // Left channel sample
+    float right;  // Right channel sample
+    
+    PcmFrame() : left(0.0f), right(0.0f) {}
+    PcmFrame(float l, float r) : left(l), right(r) {}
+};
+
+// Audio transfer statistics
+struct AudioTransferStats {
+    uint64_t total_frames;
+    uint64_t total_bytes;
+    uint64_t successful_transfers;
+    uint64_t failed_transfers;
+    double average_latency_ms;
+    double max_latency_ms;
+    double min_latency_ms;
+    
+    AudioTransferStats() : total_frames(0), total_bytes(0), successful_transfers(0), 
+                          failed_transfers(0), average_latency_ms(0.0), max_latency_ms(0.0), min_latency_ms(0.0) {}
+};
+
+/**
+ * @brief Continuous Streaming Pattern for audio transfer
+ * Implements producer-consumer pattern in main thread
+ */
+class ContinuousStreamingPattern {
+private:
+    // Audio decoder
+    ma_decoder* m_decoder;
+    ma_uint64 m_totalFrames;
+    ma_uint64 m_currentFrame;
+    bool m_isLoaded;
+    
+    // Streaming state
+    std::atomic<bool> m_isStreaming;
+    std::atomic<bool> m_shouldStop;
+    
+    // Frame buffer
+    std::queue<std::vector<PcmFrame> > m_frameQueue;
+    std::mutex m_queueMutex;
+    static const size_t MAX_QUEUE_SIZE = 100; // Prevent memory overflow
+    
+    // Transfer statistics
+    AudioTransferStats m_stats;
+    std::mutex m_statsMutex;
+    
+    // Timing
+    std::chrono::steady_clock::time_point m_lastTransferTime;
+    std::chrono::microseconds m_frameInterval;
+    
+    // Configuration
+    uint32_t m_sampleRate;
+    uint8_t m_channels;
+    uint8_t m_bitDepth;
+    uint32_t m_framesPerTransfer;
+    
+public:
+    ContinuousStreamingPattern() 
+        : m_decoder(nullptr), m_totalFrames(0), m_currentFrame(0), m_isLoaded(false),
+          m_isStreaming(false), m_shouldStop(false), m_sampleRate(48000), 
+          m_channels(2), m_bitDepth(32), m_framesPerTransfer(32) {
+        calculateFrameInterval();
+    }
+    
+    ~ContinuousStreamingPattern() {
+        stopStreaming();
+        cleanupDecoder();
+    }
+    
+    /**
+     * @brief Load audio file for streaming
+     */
+    bool loadAudioFile(const std::string& filename) {
+        cleanupDecoder();
+        
+        m_decoder = new ma_decoder();
+        ma_result result = ma_decoder_init_file(filename.c_str(), nullptr, m_decoder);
+        
+        if (result != MA_SUCCESS) {
+            std::cerr << "Failed to load audio file: " << filename << std::endl;
+            delete m_decoder;
+            m_decoder = nullptr;
+            return false;
+        }
+        
+        // Get total frames
+        ma_uint64 totalFrames;
+        result = ma_decoder_get_length_in_pcm_frames(m_decoder, &totalFrames);
+        if (result == MA_SUCCESS) {
+            m_totalFrames = totalFrames;
+        } else {
+            m_totalFrames = 0; // Unknown length
+        }
+        
+        m_currentFrame = 0;
+        m_isLoaded = true;
+        
+        // Update configuration from decoder
+        m_sampleRate = m_decoder->outputSampleRate;
+        m_channels = m_decoder->outputChannels;
+        calculateFrameInterval();
+        
+        std::cout << "✅ Loaded audio file: " << filename << std::endl;
+        std::cout << "   Sample rate: " << m_sampleRate << " Hz" << std::endl;
+        std::cout << "   Channels: " << (int)m_channels << std::endl;
+        std::cout << "   Total frames: " << m_totalFrames << std::endl;
+        std::cout << "   Frame interval: " << m_frameInterval.count() << " μs" << std::endl;
+        
+        return true;
+    }
+    
+    /**
+     * @brief Start continuous streaming
+     */
+    void startStreaming() {
+        if (!m_isLoaded) {
+            std::cerr << "❌ No audio file loaded" << std::endl;
+            return;
+        }
+        
+        if (m_isStreaming.load()) {
+            std::cout << "⚠️  Already streaming" << std::endl;
+            return;
+        }
+        
+        m_isStreaming = true;
+        m_shouldStop = false;
+        m_lastTransferTime = std::chrono::steady_clock::now();
+        
+        std::cout << "🎵 Starting continuous streaming..." << std::endl;
+        std::cout << "   Frames per transfer: " << m_framesPerTransfer << std::endl;
+        std::cout << "   Transfer interval: " << m_frameInterval.count() << " μs" << std::endl;
+        std::cout << std::endl;
+        
+        // Main streaming loop
+        while (!m_shouldStop.load() && m_currentFrame < m_totalFrames) {
+            auto startTime = std::chrono::steady_clock::now();
+            
+            // Read next chunk of PCM frames
+            std::vector<PcmFrame> frames = readNextFrames(m_framesPerTransfer);
+            
+            if (!frames.empty()) {
+                // Simulate USB transfer
+                bool transferSuccess = simulateUsbTransfer(frames);
+                
+                // Update statistics
+                updateStats(frames.size(), transferSuccess, startTime);
+                
+                // Log progress
+                logTransferProgress(frames.size(), transferSuccess);
+            }
+            
+            // Maintain timing
+            maintainTiming(startTime);
+        }
+        
+        m_isStreaming = false;
+        std::cout << "🛑 Streaming stopped" << std::endl;
+        printFinalStats();
+    }
+    
+    /**
+     * @brief Stop streaming
+     */
+    void stopStreaming() {
+        m_shouldStop = true;
+        while (m_isStreaming.load()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    }
+    
+    /**
+     * @brief Check if currently streaming
+     */
+    bool isStreaming() const {
+        return m_isStreaming.load();
+    }
+    
+    /**
+     * @brief Get transfer statistics
+     */
+    AudioTransferStats getStats() const {
+        std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m_statsMutex));
+        return m_stats;
+    }
+    
+    /**
+     * @brief Configure streaming parameters
+     */
+    void configure(uint32_t framesPerTransfer = 32) {
+        m_framesPerTransfer = framesPerTransfer;
+        calculateFrameInterval();
+    }
+
+private:
+    /**
+     * @brief Read next chunk of PCM frames
+     */
+    std::vector<PcmFrame> readNextFrames(uint32_t frameCount) {
+        std::vector<PcmFrame> frames;
+        frames.reserve(frameCount);
+        
+        if (!m_decoder || m_currentFrame >= m_totalFrames) {
+            return frames;
+        }
+        
+        // Calculate how many frames to read
+        ma_uint64 framesToRead = std::min((ma_uint64)frameCount, m_totalFrames - m_currentFrame);
+        
+        // Read samples from decoder
+        std::vector<float> samples(framesToRead * m_channels);
+        ma_uint64 framesRead;
+        
+        ma_result result = ma_decoder_read_pcm_frames(m_decoder, samples.data(), framesToRead, &framesRead);
+        
+        if (result == MA_SUCCESS && framesRead > 0) {
+            // Convert samples to PCM frames
+            for (ma_uint64 i = 0; i < framesRead; ++i) {
+                float left = samples[i * m_channels];
+                float right = (m_channels > 1) ? samples[i * m_channels + 1] : left;
+                frames.emplace_back(left, right);
+            }
+            
+            m_currentFrame += framesRead;
+        }
+        
+        return frames;
+    }
+    
+    /**
+     * @brief Simulate USB isochronous transfer
+     */
+    bool simulateUsbTransfer(const std::vector<PcmFrame>& frames) {
+        // Simulate transfer time (real USB transfer would happen here)
+        std::this_thread::sleep_for(std::chrono::microseconds(100)); // 100μs transfer time
+        
+        // Simulate occasional transfer failure (1% failure rate)
+        static int transferCount = 0;
+        transferCount++;
+        bool success = (transferCount % 100 != 0); // 99% success rate
+        
+        return success;
+    }
+    
+    /**
+     * @brief Update transfer statistics
+     */
+    void updateStats(uint32_t frameCount, bool success, std::chrono::steady_clock::time_point startTime) {
+        std::lock_guard<std::mutex> lock(m_statsMutex);
+        
+        auto endTime = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+        double latencyMs = duration.count() / 1000.0;
+        
+        m_stats.total_frames += frameCount;
+        m_stats.total_bytes += frameCount * m_channels * (m_bitDepth / 8);
+        
+        if (success) {
+            m_stats.successful_transfers++;
+        } else {
+            m_stats.failed_transfers++;
+        }
+        
+        // Update latency statistics
+        if (m_stats.successful_transfers == 1) {
+            m_stats.min_latency_ms = latencyMs;
+            m_stats.max_latency_ms = latencyMs;
+            m_stats.average_latency_ms = latencyMs;
+        } else {
+            m_stats.min_latency_ms = std::min(m_stats.min_latency_ms, latencyMs);
+            m_stats.max_latency_ms = std::max(m_stats.max_latency_ms, latencyMs);
+            m_stats.average_latency_ms = (m_stats.average_latency_ms * (m_stats.successful_transfers - 1) + latencyMs) / m_stats.successful_transfers;
+        }
+    }
+    
+    /**
+     * @brief Log transfer progress
+     */
+    void logTransferProgress(uint32_t frameCount, bool success) {
+        static uint64_t transferCount = 0;
+        transferCount++;
+        
+        // Log every 100th transfer
+        if (transferCount % 100 == 0) {
+            std::cout << "📊 Transfer #" << transferCount 
+                      << " | Frames: " << frameCount 
+                      << " | Status: " << (success ? "✅" : "❌")
+                      << " | Progress: " << std::fixed << std::setprecision(1)
+                      << (m_totalFrames > 0 ? (m_currentFrame * 100.0 / m_totalFrames) : 0.0) << "%"
+                      << std::endl;
+        }
+    }
+    
+    /**
+     * @brief Maintain timing for real-time streaming
+     */
+    void maintainTiming(std::chrono::steady_clock::time_point startTime) {
+        auto endTime = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+        
+        if (elapsed < m_frameInterval) {
+            auto sleepTime = m_frameInterval - elapsed;
+            std::this_thread::sleep_for(sleepTime);
+        }
+    }
+    
+    /**
+     * @brief Calculate frame interval based on sample rate
+     */
+    void calculateFrameInterval() {
+        // Calculate microseconds per frame
+        double secondsPerFrame = 1.0 / m_sampleRate;
+        double microsecondsPerFrame = secondsPerFrame * 1000000.0;
+        m_frameInterval = std::chrono::microseconds(static_cast<long>(microsecondsPerFrame * m_framesPerTransfer));
+    }
+    
+    /**
+     * @brief Print final statistics
+     */
+    void printFinalStats() {
+        std::lock_guard<std::mutex> lock(m_statsMutex);
+        
+        std::cout << std::endl;
+        std::cout << "📈 Final Statistics:" << std::endl;
+        std::cout << "   Total frames: " << m_stats.total_frames << std::endl;
+        std::cout << "   Total bytes: " << m_stats.total_bytes << std::endl;
+        std::cout << "   Successful transfers: " << m_stats.successful_transfers << std::endl;
+        std::cout << "   Failed transfers: " << m_stats.failed_transfers << std::endl;
+        std::cout << "   Average latency: " << std::fixed << std::setprecision(2) << m_stats.average_latency_ms << " ms" << std::endl;
+        std::cout << "   Min latency: " << std::fixed << std::setprecision(2) << m_stats.min_latency_ms << " ms" << std::endl;
+        std::cout << "   Max latency: " << std::fixed << std::setprecision(2) << m_stats.max_latency_ms << " ms" << std::endl;
+    }
+    
+    /**
+     * @brief Cleanup decoder
+     */
+    void cleanupDecoder() {
+        if (m_decoder) {
+            ma_decoder_uninit(m_decoder);
+            delete m_decoder;
+            m_decoder = nullptr;
+        }
+        m_isLoaded = false;
+        m_currentFrame = 0;
+        m_totalFrames = 0;
+    }
+};
+
+} // namespace kcobain
+
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        std::cout << "🎵 Continuous Audio Streaming Pattern" << std::endl;
+        std::cout << "=====================================" << std::endl;
+        std::cout << "Usage: " << argv[0] << " <audio_file>" << std::endl;
+        std::cout << std::endl;
+        std::cout << "Examples:" << std::endl;
+        std::cout << "  " << argv[0] << " music.wav" << std::endl;
+        std::cout << "  " << argv[0] << " sample.mp3" << std::endl;
+        std::cout << "  " << argv[0] << " audio.flac" << std::endl;
+        std::cout << std::endl;
+        std::cout << "This demonstrates continuous streaming pattern for audio transfer." << std::endl;
+        return 1;
+    }
+    
+    std::string audioFilename = argv[1];
+    
+    // Create streaming pattern
+    kcobain::ContinuousStreamingPattern streamer;
+    
+    // Load audio file
+    if (!streamer.loadAudioFile(audioFilename)) {
+        std::cerr << "Failed to load audio file: " << audioFilename << std::endl;
+        return 1;
+    }
+    
+    // Configure streaming (optional)
+    streamer.configure(32); // 32 frames per transfer
+    
+    // Start continuous streaming in main thread
+    std::cout << "🚀 Starting continuous streaming in main thread..." << std::endl;
+    std::cout << "Press Ctrl+C to stop" << std::endl;
+    std::cout << std::endl;
+    
+    streamer.startStreaming();
+    
+    return 0;
+}

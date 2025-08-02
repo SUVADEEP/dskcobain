@@ -1,0 +1,17 @@
+CC=gcc
+CXX=g++
+CFLAGS=-I./src/include
+CXXFLAGS=-I./src/include
+OBJ_C=src/main.o
+OBJ_CPP=src/main.o
+
+all: cpp-app c-app
+
+cpp-app: src/main.cpp
+	$(CXX) $(CXXFLAGS) -o cpp-app src/main.cpp
+
+c-app: src/main.c
+	$(CC) $(CFLAGS) -o c-app src/main.c
+
+clean:
+	rm -f cpp-app c-app src/*.o

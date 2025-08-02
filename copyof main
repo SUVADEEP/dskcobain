@@ -1,0 +1,94 @@
+#include <iostream>
+#define MINIAUDIO_IMPLEMENTATION
+#include "external/miniaudio.h"
+
+ma_result result;
+ma_decoder decoder;
+ma_device device;
+
+// This callback feeds PCM frames from decoder to playback device
+void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
+{
+    ma_decoder* decoder = (ma_decoder*)pDevice->pUserData;
+    if (!decoder) return;
+
+    ma_uint64 framesRead = 0;
+    ma_result result = ma_decoder_read_pcm_frames(decoder, pOutput, frameCount, &framesRead);
+
+    // Zero out remaining buffer if we hit end of file
+    if (framesRead < frameCount) {
+        uint8_t* remaining = (uint8_t*)pOutput + (framesRead * ma_get_bytes_per_frame(
+            pDevice->playback.format, pDevice->playback.channels));
+
+        size_t remainingSize = (frameCount - framesRead) * ma_get_bytes_per_frame(
+            pDevice->playback.format, pDevice->playback.channels);
+
+        memset(remaining, 0, remainingSize);
+    }
+
+    (void)pInput;
+}
+
+int main(int argc, char** argv)
+{
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <audio_file.wav/flac>\n";
+        return 1;
+    }
+
+    const char* filePath = argv[1];
+
+    // Init decoder
+    ma_decoder_config decoderConfig = ma_decoder_config_init(ma_format_f32, 1, 0); // auto-detect channels/sample rate
+    result = ma_decoder_init_file(filePath, &decoderConfig, &decoder);
+    if (result != MA_SUCCESS) {
+        std::cerr << "Failed to initialize decoder for file: " << filePath << "\n";
+        return -1;
+    }
+
+    std::cout << "Sample Rate: " << decoder.outputSampleRate << "\n";
+    std::cout << "Channels: " << decoder.outputChannels << "\n";
+    std::cout << "Bit Depth: 5 means 32 bit " << decoder.outputFormat << "\n";
+
+    // Init playback device
+    ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
+    deviceConfig.playback.format   = decoder.outputFormat;
+    deviceConfig.playback.channels = decoder.outputChannels;
+    deviceConfig.sampleRate        = decoder.outputSampleRate;
+    deviceConfig.dataCallback      = data_callback;
+    deviceConfig.pUserData         = &decoder;
+
+    result = ma_device_init(NULL, &deviceConfig, &device);
+    if (result != MA_SUCCESS) {
+        std::cerr << "Failed to initialize playback device\n";
+        ma_decoder_uninit(&decoder);
+        return -1;
+    }
+
+    std::cout << "Playing: " << filePath << "\n";
+    result = ma_device_start(&device);
+    if (result != MA_SUCCESS) {
+        std::cerr << "Failed to start playback device\n";
+        ma_device_uninit(&device);
+        ma_decoder_uninit(&decoder);
+        return -1;
+    }
+    else {
+        std::cout << "Playback started successfully.\n";
+        // Print device info
+        std::cout <<"Device Name: " << device.playback.name << "\n";
+        std::cout << "Device Info: \n";
+        std::cout << device.sampleRate << " Hz, " 
+                  << device.playback.channels << " channels, "
+                  << ma_get_format_name(device.playback.format) << " format\n";
+    }
+
+    std::cout << "Press Enter to stop...\n";
+    std::cin.get(); // Wait for user to stop
+
+    // Clean up
+    ma_device_uninit(&device);
+    ma_decoder_uninit(&decoder);
+
+    return 0;
+}
