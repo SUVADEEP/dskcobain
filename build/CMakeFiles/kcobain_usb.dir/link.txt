@@ -1,0 +1,2 @@
+/usr/bin/ar qc libkcobain_usb.a CMakeFiles/kcobain_usb.dir/src/core/usb_audio_producer.cpp.o CMakeFiles/kcobain_usb.dir/src/core/usb_audio_consumer.cpp.o CMakeFiles/kcobain_usb.dir/src/core/usb_audio_orchestrator.cpp.o
+/usr/bin/ranlib libkcobain_usb.a

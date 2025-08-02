@@ -72,94 +72,10 @@ include CMakeFiles/kcobain.dir/flags.make
 CMakeFiles/kcobain.dir/codegen:
 .PHONY : CMakeFiles/kcobain.dir/codegen
 
-CMakeFiles/kcobain.dir/src/utils/logger.cpp.o: CMakeFiles/kcobain.dir/flags.make
-CMakeFiles/kcobain.dir/src/utils/logger.cpp.o: /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/utils/logger.cpp
-CMakeFiles/kcobain.dir/src/utils/logger.cpp.o: CMakeFiles/kcobain.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/kcobain.dir/src/utils/logger.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kcobain.dir/src/utils/logger.cpp.o -MF CMakeFiles/kcobain.dir/src/utils/logger.cpp.o.d -o CMakeFiles/kcobain.dir/src/utils/logger.cpp.o -c /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/utils/logger.cpp
-
-CMakeFiles/kcobain.dir/src/utils/logger.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kcobain.dir/src/utils/logger.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/utils/logger.cpp > CMakeFiles/kcobain.dir/src/utils/logger.cpp.i
-
-CMakeFiles/kcobain.dir/src/utils/logger.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kcobain.dir/src/utils/logger.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/utils/logger.cpp -o CMakeFiles/kcobain.dir/src/utils/logger.cpp.s
-
-CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o: CMakeFiles/kcobain.dir/flags.make
-CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o: /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/miniaudio_impl.cpp
-CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o: CMakeFiles/kcobain.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o -MF CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o.d -o CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o -c /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/miniaudio_impl.cpp
-
-CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/miniaudio_impl.cpp > CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.i
-
-CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/miniaudio_impl.cpp -o CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.s
-
-CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o: CMakeFiles/kcobain.dir/flags.make
-CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o: /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/audio_rb_controller.cpp
-CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o: CMakeFiles/kcobain.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o -MF CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o.d -o CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o -c /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/audio_rb_controller.cpp
-
-CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/audio_rb_controller.cpp > CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.i
-
-CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/audio_rb_controller.cpp -o CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.s
-
-CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o: CMakeFiles/kcobain.dir/flags.make
-CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o: /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_producer.cpp
-CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o: CMakeFiles/kcobain.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o -MF CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o.d -o CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o -c /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_producer.cpp
-
-CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_producer.cpp > CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.i
-
-CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_producer.cpp -o CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.s
-
-CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o: CMakeFiles/kcobain.dir/flags.make
-CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o: /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_consumer.cpp
-CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o: CMakeFiles/kcobain.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o -MF CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o.d -o CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o -c /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_consumer.cpp
-
-CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_consumer.cpp > CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.i
-
-CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_consumer.cpp -o CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.s
-
-CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o: CMakeFiles/kcobain.dir/flags.make
-CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o: /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_orchestrator.cpp
-CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o: CMakeFiles/kcobain.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o -MF CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o.d -o CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o -c /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_orchestrator.cpp
-
-CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_orchestrator.cpp > CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.i
-
-CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/core/usb_audio_orchestrator.cpp -o CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.s
-
 CMakeFiles/kcobain.dir/src/main.cpp.o: CMakeFiles/kcobain.dir/flags.make
 CMakeFiles/kcobain.dir/src/main.cpp.o: /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/main.cpp
 CMakeFiles/kcobain.dir/src/main.cpp.o: CMakeFiles/kcobain.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/kcobain.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/kcobain.dir/src/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kcobain.dir/src/main.cpp.o -MF CMakeFiles/kcobain.dir/src/main.cpp.o.d -o CMakeFiles/kcobain.dir/src/main.cpp.o -c /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/main.cpp
 
 CMakeFiles/kcobain.dir/src/main.cpp.i: cmake_force
@@ -172,27 +88,17 @@ CMakeFiles/kcobain.dir/src/main.cpp.s: cmake_force
 
 # Object files for target kcobain
 kcobain_OBJECTS = \
-"CMakeFiles/kcobain.dir/src/utils/logger.cpp.o" \
-"CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o" \
-"CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o" \
-"CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o" \
-"CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o" \
-"CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o" \
 "CMakeFiles/kcobain.dir/src/main.cpp.o"
 
 # External object files for target kcobain
 kcobain_EXTERNAL_OBJECTS =
 
-bin/kcobain: CMakeFiles/kcobain.dir/src/utils/logger.cpp.o
-bin/kcobain: CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o
-bin/kcobain: CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o
-bin/kcobain: CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o
-bin/kcobain: CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o
-bin/kcobain: CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o
 bin/kcobain: CMakeFiles/kcobain.dir/src/main.cpp.o
 bin/kcobain: CMakeFiles/kcobain.dir/build.make
+bin/kcobain: libkcobain_usb.a
+bin/kcobain: libkcobain_core.a
 bin/kcobain: CMakeFiles/kcobain.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable bin/kcobain"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable bin/kcobain"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/kcobain.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

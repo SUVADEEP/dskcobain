@@ -162,6 +162,32 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named kcobain_core
+
+# Build rule for target.
+kcobain_core: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 kcobain_core
+.PHONY : kcobain_core
+
+# fast build rule for target.
+kcobain_core/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/build
+.PHONY : kcobain_core/fast
+
+#=============================================================================
+# Target rules for targets named kcobain_usb
+
+# Build rule for target.
+kcobain_usb: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 kcobain_usb
+.PHONY : kcobain_usb
+
+# fast build rule for target.
+kcobain_usb/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/build
+.PHONY : kcobain_usb/fast
+
+#=============================================================================
 # Target rules for targets named kcobain
 
 # Build rule for target.
@@ -179,7 +205,7 @@ src/core/audio_rb_controller.o: src/core/audio_rb_controller.cpp.o
 
 # target to build an object file
 src/core/audio_rb_controller.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/src/core/audio_rb_controller.cpp.o
 .PHONY : src/core/audio_rb_controller.cpp.o
 
 src/core/audio_rb_controller.i: src/core/audio_rb_controller.cpp.i
@@ -187,7 +213,7 @@ src/core/audio_rb_controller.i: src/core/audio_rb_controller.cpp.i
 
 # target to preprocess a source file
 src/core/audio_rb_controller.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/src/core/audio_rb_controller.cpp.i
 .PHONY : src/core/audio_rb_controller.cpp.i
 
 src/core/audio_rb_controller.s: src/core/audio_rb_controller.cpp.s
@@ -195,7 +221,7 @@ src/core/audio_rb_controller.s: src/core/audio_rb_controller.cpp.s
 
 # target to generate assembly for a file
 src/core/audio_rb_controller.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/audio_rb_controller.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/src/core/audio_rb_controller.cpp.s
 .PHONY : src/core/audio_rb_controller.cpp.s
 
 src/core/usb_audio_consumer.o: src/core/usb_audio_consumer.cpp.o
@@ -203,7 +229,7 @@ src/core/usb_audio_consumer.o: src/core/usb_audio_consumer.cpp.o
 
 # target to build an object file
 src/core/usb_audio_consumer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/src/core/usb_audio_consumer.cpp.o
 .PHONY : src/core/usb_audio_consumer.cpp.o
 
 src/core/usb_audio_consumer.i: src/core/usb_audio_consumer.cpp.i
@@ -211,7 +237,7 @@ src/core/usb_audio_consumer.i: src/core/usb_audio_consumer.cpp.i
 
 # target to preprocess a source file
 src/core/usb_audio_consumer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/src/core/usb_audio_consumer.cpp.i
 .PHONY : src/core/usb_audio_consumer.cpp.i
 
 src/core/usb_audio_consumer.s: src/core/usb_audio_consumer.cpp.s
@@ -219,7 +245,7 @@ src/core/usb_audio_consumer.s: src/core/usb_audio_consumer.cpp.s
 
 # target to generate assembly for a file
 src/core/usb_audio_consumer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/usb_audio_consumer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/src/core/usb_audio_consumer.cpp.s
 .PHONY : src/core/usb_audio_consumer.cpp.s
 
 src/core/usb_audio_orchestrator.o: src/core/usb_audio_orchestrator.cpp.o
@@ -227,7 +253,7 @@ src/core/usb_audio_orchestrator.o: src/core/usb_audio_orchestrator.cpp.o
 
 # target to build an object file
 src/core/usb_audio_orchestrator.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/src/core/usb_audio_orchestrator.cpp.o
 .PHONY : src/core/usb_audio_orchestrator.cpp.o
 
 src/core/usb_audio_orchestrator.i: src/core/usb_audio_orchestrator.cpp.i
@@ -235,7 +261,7 @@ src/core/usb_audio_orchestrator.i: src/core/usb_audio_orchestrator.cpp.i
 
 # target to preprocess a source file
 src/core/usb_audio_orchestrator.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/src/core/usb_audio_orchestrator.cpp.i
 .PHONY : src/core/usb_audio_orchestrator.cpp.i
 
 src/core/usb_audio_orchestrator.s: src/core/usb_audio_orchestrator.cpp.s
@@ -243,7 +269,7 @@ src/core/usb_audio_orchestrator.s: src/core/usb_audio_orchestrator.cpp.s
 
 # target to generate assembly for a file
 src/core/usb_audio_orchestrator.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/usb_audio_orchestrator.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/src/core/usb_audio_orchestrator.cpp.s
 .PHONY : src/core/usb_audio_orchestrator.cpp.s
 
 src/core/usb_audio_producer.o: src/core/usb_audio_producer.cpp.o
@@ -251,7 +277,7 @@ src/core/usb_audio_producer.o: src/core/usb_audio_producer.cpp.o
 
 # target to build an object file
 src/core/usb_audio_producer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/src/core/usb_audio_producer.cpp.o
 .PHONY : src/core/usb_audio_producer.cpp.o
 
 src/core/usb_audio_producer.i: src/core/usb_audio_producer.cpp.i
@@ -259,7 +285,7 @@ src/core/usb_audio_producer.i: src/core/usb_audio_producer.cpp.i
 
 # target to preprocess a source file
 src/core/usb_audio_producer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/src/core/usb_audio_producer.cpp.i
 .PHONY : src/core/usb_audio_producer.cpp.i
 
 src/core/usb_audio_producer.s: src/core/usb_audio_producer.cpp.s
@@ -267,7 +293,7 @@ src/core/usb_audio_producer.s: src/core/usb_audio_producer.cpp.s
 
 # target to generate assembly for a file
 src/core/usb_audio_producer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/core/usb_audio_producer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_usb.dir/build.make CMakeFiles/kcobain_usb.dir/src/core/usb_audio_producer.cpp.s
 .PHONY : src/core/usb_audio_producer.cpp.s
 
 src/main.o: src/main.cpp.o
@@ -299,7 +325,7 @@ src/miniaudio_impl.o: src/miniaudio_impl.cpp.o
 
 # target to build an object file
 src/miniaudio_impl.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/src/miniaudio_impl.cpp.o
 .PHONY : src/miniaudio_impl.cpp.o
 
 src/miniaudio_impl.i: src/miniaudio_impl.cpp.i
@@ -307,7 +333,7 @@ src/miniaudio_impl.i: src/miniaudio_impl.cpp.i
 
 # target to preprocess a source file
 src/miniaudio_impl.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/src/miniaudio_impl.cpp.i
 .PHONY : src/miniaudio_impl.cpp.i
 
 src/miniaudio_impl.s: src/miniaudio_impl.cpp.s
@@ -315,7 +341,7 @@ src/miniaudio_impl.s: src/miniaudio_impl.cpp.s
 
 # target to generate assembly for a file
 src/miniaudio_impl.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/src/miniaudio_impl.cpp.s
 .PHONY : src/miniaudio_impl.cpp.s
 
 src/utils/logger.o: src/utils/logger.cpp.o
@@ -323,7 +349,7 @@ src/utils/logger.o: src/utils/logger.cpp.o
 
 # target to build an object file
 src/utils/logger.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/utils/logger.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/src/utils/logger.cpp.o
 .PHONY : src/utils/logger.cpp.o
 
 src/utils/logger.i: src/utils/logger.cpp.i
@@ -331,7 +357,7 @@ src/utils/logger.i: src/utils/logger.cpp.i
 
 # target to preprocess a source file
 src/utils/logger.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/utils/logger.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/src/utils/logger.cpp.i
 .PHONY : src/utils/logger.cpp.i
 
 src/utils/logger.s: src/utils/logger.cpp.s
@@ -339,7 +365,7 @@ src/utils/logger.s: src/utils/logger.cpp.s
 
 # target to generate assembly for a file
 src/utils/logger.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain.dir/build.make CMakeFiles/kcobain.dir/src/utils/logger.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/kcobain_core.dir/build.make CMakeFiles/kcobain_core.dir/src/utils/logger.cpp.s
 .PHONY : src/utils/logger.cpp.s
 
 # Help Target
@@ -355,6 +381,8 @@ help:
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... kcobain"
+	@echo "... kcobain_core"
+	@echo "... kcobain_usb"
 	@echo "... src/core/audio_rb_controller.o"
 	@echo "... src/core/audio_rb_controller.i"
 	@echo "... src/core/audio_rb_controller.s"

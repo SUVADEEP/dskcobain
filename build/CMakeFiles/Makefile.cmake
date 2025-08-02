@@ -56,5 +56,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/kcobain_core.dir/DependInfo.cmake"
+  "CMakeFiles/kcobain_usb.dir/DependInfo.cmake"
   "CMakeFiles/kcobain.dir/DependInfo.cmake"
   )

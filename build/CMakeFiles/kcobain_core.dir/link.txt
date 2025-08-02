@@ -1,0 +1,2 @@
+/usr/bin/ar qc libkcobain_core.a CMakeFiles/kcobain_core.dir/src/utils/logger.cpp.o CMakeFiles/kcobain_core.dir/src/miniaudio_impl.cpp.o CMakeFiles/kcobain_core.dir/src/core/audio_rb_controller.cpp.o
+/usr/bin/ranlib libkcobain_core.a

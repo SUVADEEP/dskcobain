@@ -231,6 +231,12 @@ kcobain_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 kcobain_SOURCE_DIR:STATIC=/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain
 
+//Dependencies for the target
+kcobain_core_LIB_DEPENDS:STATIC=general;/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/CoreAudio.framework;general;/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/AudioToolbox.framework;general;m;
+
+//Dependencies for the target
+kcobain_usb_LIB_DEPENDS:STATIC=general;kcobain_core;general;/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/CoreAudio.framework;general;/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/AudioToolbox.framework;general;m;
+
 
 ########################
 # INTERNAL cache entries

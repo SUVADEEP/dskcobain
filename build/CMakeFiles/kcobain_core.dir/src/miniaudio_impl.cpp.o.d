@@ -1,4 +1,4 @@
-CMakeFiles/kcobain.dir/src/miniaudio_impl.cpp.o: \
+CMakeFiles/kcobain_core.dir/src/miniaudio_impl.cpp.o: \
   /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/miniaudio_impl.cpp \
   /Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/src/../external/miniaudio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/stddef.h \
