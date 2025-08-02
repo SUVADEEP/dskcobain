@@ -1,9 +1,0 @@
-/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles/kcobain_core.dir
-/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles/kcobain_usb.dir
-/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles/kcobain.dir
-/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles/edit_cache.dir
-/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles/rebuild_cache.dir
-/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles/list_install_components.dir
-/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles/install.dir
-/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles/install/local.dir
-/Users/suvadeepdatta/Documents/kcobain_assets/ds_kcobain/build/CMakeFiles/install/strip.dir

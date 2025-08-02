@@ -1,2 +1,115 @@
-/build
-/build_android_arm64-v8a
+# Build directories
+/build/
+/build_*/
+/build_android_*/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Compiled object files
+*.o
+*.obj
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.def
+*.exp
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.x*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# Dependency files
+*.d
+
+# Log files
+*.log
+*.tlog
+
+# Temporary files
+*.tmp
+*.temp
+*~
+.#*
+\#*#
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Test files
+test_*
+*_test
+
+# Android specific
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# macOS specific
+.AppleDouble
+.LSOverride
+
+# Windows specific
+*.lnk
+
+# Project specific
+kcobain
+*.bin
