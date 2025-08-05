@@ -407,3 +407,33 @@ int main(int argc, char* argv[]) {
     
     return 0;
 }
+
+
+ // // Calculate frames per USB microframe for this audio format
+    // uint32_t frames_per_microframe = (125 * decoder.outputSampleRate) / 1000000;
+    // uint32_t bytes_per_microframe = frames_per_microframe * decoder.outputChannels * ma_get_bytes_per_sample(decoder.outputFormat);
+    
+    // LOG_INFO("🔍 USB Audio Frame Analysis:");
+    // LOG_INFO("   Frames per USB Microframe (125μs): " + std::to_string(frames_per_microframe));
+    // LOG_INFO("   Audio Bytes per Microframe: " + std::to_string(bytes_per_microframe));
+    // LOG_INFO("   USB Frame Size: 384 bytes (transport layer)");
+    // LOG_INFO("   Padding Bytes: " + std::to_string(384 - bytes_per_microframe));
+    // LOG_INFO("   Buffer Efficiency: " + std::to_string(bytes_per_microframe * 100 / 384) + "%");
+    
+    // LOG_INFO("🔄 Decoder to Audio Buffer Relationship:");
+    // LOG_INFO("   Current: Decoder → Device (direct streaming)");
+    // LOG_INFO("   Proposed: Decoder → Audio Buffer → USB Consumer");
+    // LOG_INFO("   Benefits: Frame alignment, no padding waste, better timing");
+
+
+    What we now have using miniaudio's built-in features:
+ma_fader: Miniaudio's built-in fader for smooth volume transitions
+ma_fader_set_fade(): Sets up fade from one volume level to another over a specified duration
+ma_fader_process_pcm_frames(): Processes audio frames with the fade effect
+ma_fader_get_current_volume(): Gets the current volume level during fade
+Key miniaudio features we're now using:
+ma_fader: A built-in audio processor for volume fading
+ma_fader_config_init(): Initialize fader configuration
+ma_fader_init(): Initialize the fader with audio format, channels, and sample rate
+ma_fader_set_fade(): Configure fade from start volume to end volume over specified frames
+ma_fader_process_pcm_frames(): Apply the fade effect to audio data

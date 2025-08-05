@@ -369,3 +369,249 @@ This project is provided as-is for educational and development purposes.
 ---
 
 **Note**: This is a simulation project for USB Audio Class development and testing. It accurately reproduces USB timing and behavior without requiring actual USB hardware.
+
+
+# Decoder Node Graph Architecture
+
+This directory contains a flexible, modular audio decoder implementation using a node graph architecture. The system allows you to build complex audio processing pipelines by connecting different types of nodes together.
+
+## 🏗️ Architecture Overview
+
+The decoder system is built around three main components:
+
+1. **DecoderNode** - Base interface for all processing nodes
+2. **DecoderGraph** - Manages the network of connected nodes
+3. **Concrete Nodes** - Specific implementations for different audio operations
+
+## 📁 File Structure
+
+```
+src/decoder/
+├── decoder_node.h              # Base node interface
+├── decoder_graph.h             # Graph management
+├── decoder_graph.cpp           # Graph implementation
+├── decoder_example.cpp         # Usage examples
+├── nodes/                      # Concrete node implementations
+│   ├── file_source_node.h      # Audio file input
+│   ├── audio_processor_node.h  # Audio processing operations
+│   └── usb_sink_node.h         # USB audio output
+└── README.md                   # This file
+```
+
+## 🎯 Key Features
+
+### **Modular Design**
+- Each node has a single responsibility
+- Easy to add new node types
+- Nodes can be connected in any valid configuration
+
+### **Flexible Processing**
+- Support for various audio operations (gain, filter, resample, etc.)
+- Configurable parameters for each node
+- Real-time and batch processing capabilities
+
+### **Graph Management**
+- Automatic topological sorting for execution order
+- Cycle detection to prevent infinite loops
+- Connection validation and error handling
+
+### **USB Integration**
+- Direct integration with USB Audio Class
+- Precise timing control (125μs microframes)
+- Statistics and monitoring capabilities
+
+## 🔧 Node Types
+
+### **FileSourceNode**
+- Reads audio files (FLAC, WAV, etc.)
+- Supports seeking and frame-by-frame reading
+- Configurable buffer sizes
+
+### **AudioProcessorNode**
+- **Gain**: Apply volume changes
+- **Filter**: Apply various filters (lowpass, highpass, etc.)
+- **Resample**: Change sample rate
+- **Normalize**: Normalize audio levels
+- **Fade**: Apply fade in/out effects
+- **Reverse**: Reverse audio playback
+
+### **UsbSinkNode**
+- Outputs audio to USB Audio Class devices
+- Configurable endpoints and packet sizes
+- Precise timing control
+- Statistics tracking (underruns, overruns)
+
+## 🚀 Usage Examples
+
+### **Basic Audio Processing Chain**
+```cpp
+// Create graph
+DecoderGraph graph;
+
+// Add nodes
+auto fileSource = std::make_shared<FileSourceNode>("AudioFile");
+auto processor = std::make_shared<AudioProcessorNode>("GainProcessor");
+auto usbSink = std::make_shared<UsbSinkNode>("UsbOutput");
+
+graph.addNode(fileSource);
+graph.addNode(processor);
+graph.addNode(usbSink);
+
+// Connect nodes
+graph.connect("AudioFile", "audio_out", "GainProcessor", "audio_in");
+graph.connect("GainProcessor", "audio_out", "UsbOutput", "audio_in");
+
+// Configure and run
+fileSource->setParameter("filename", "audio.flac");
+processor->setParameter("operation", "gain");
+processor->setParameter("gain_value", "1.5");
+
+graph.initialize();
+graph.process(input, output);
+graph.shutdown();
+```
+
+### **Complex Processing Pipeline**
+```cpp
+// File -> Gain -> Filter -> Resample -> USB
+graph.connect("AudioFile", "audio_out", "GainProcessor", "audio_in");
+graph.connect("GainProcessor", "audio_out", "FilterProcessor", "audio_in");
+graph.connect("FilterProcessor", "audio_out", "ResampleProcessor", "audio_in");
+graph.connect("ResampleProcessor", "audio_out", "UsbOutput", "audio_in");
+```
+
+## 🔗 Node Connections
+
+### **Connection Types**
+- **AUDIO**: Audio data flow between nodes
+- **CONTROL**: Control parameter connections
+- **METADATA**: Metadata information flow
+
+### **Port System**
+Each node defines input and output ports:
+- **FileSourceNode**: `audio_out`
+- **AudioProcessorNode**: `audio_in`, `audio_out`
+- **UsbSinkNode**: `audio_in`
+
+### **Validation**
+- Port existence validation
+- Type compatibility checking
+- Cycle detection
+
+## 📊 Graph Analysis
+
+### **Topological Sorting**
+The graph automatically determines the correct execution order:
+```cpp
+auto order = graph.getTopologicalOrder();
+// Returns: ["AudioFile", "GainProcessor", "UsbOutput"]
+```
+
+### **Graph Statistics**
+```cpp
+size_t nodeCount = graph.getNodeCount();
+size_t connectionCount = graph.getConnectionCount();
+bool isAcyclic = graph.isAcyclic();
+```
+
+### **Source and Sink Detection**
+```cpp
+auto sources = graph.getSourceNodes();  // Nodes with no inputs
+auto sinks = graph.getSinkNodes();      // Nodes with no outputs
+```
+
+## 🎵 Audio Processing
+
+### **AudioBuffer Structure**
+```cpp
+struct AudioBuffer {
+    std::vector<float> data;     // Audio samples
+    uint32_t sampleRate;         // Sample rate (Hz)
+    uint32_t channels;           // Number of channels
+    uint32_t frameCount;         // Number of frames
+};
+```
+
+### **Processing Flow**
+1. **Input**: AudioBuffer with input data
+2. **Processing**: Each node processes the data
+3. **Output**: AudioBuffer with processed data
+
+### **Real-time Considerations**
+- Lock-free operations where possible
+- Minimal latency processing
+- Buffer management for smooth playback
+
+## 🔧 Configuration
+
+### **Node Parameters**
+Each node supports configurable parameters:
+```cpp
+node->setParameter("operation", "gain");
+node->setParameter("gain_value", "1.5");
+node->setParameter("filter_type", "lowpass");
+```
+
+### **USB Configuration**
+```cpp
+usbSink->setParameter("endpoint", "0x01");
+usbSink->setParameter("packet_size", "384");
+usbSink->setParameter("microframe_interval", "125");
+```
+
+## 🧪 Testing and Debugging
+
+### **Graph Validation**
+```cpp
+if (!graph.isAcyclic()) {
+    LOG_ERROR("Graph contains cycles!");
+}
+
+auto order = graph.getTopologicalOrder();
+if (order.empty()) {
+    LOG_ERROR("Cannot determine execution order");
+}
+```
+
+### **Node State Monitoring**
+```cpp
+if (!node->isInitialized()) {
+    LOG_ERROR("Node not initialized");
+}
+
+if (!node->canProcess()) {
+    LOG_WARN("Node cannot process");
+}
+```
+
+## 🔮 Future Enhancements
+
+### **Planned Features**
+- **More Node Types**: Effects, analysis, format conversion
+- **Dynamic Graph Loading**: Load graphs from configuration files
+- **Parallel Processing**: Multi-threaded node execution
+- **Visual Editor**: GUI for building graphs
+- **Plugin System**: Load custom nodes at runtime
+
+### **Performance Optimizations**
+- **SIMD Processing**: Vectorized audio operations
+- **Memory Pooling**: Efficient buffer management
+- **JIT Compilation**: Runtime optimization of processing chains
+
+## 🤝 Contributing
+
+### **Adding New Nodes**
+1. Inherit from `DecoderNode`
+2. Implement all virtual methods
+3. Register with `DecoderNodeFactory`
+4. Add to the build system
+
+### **Node Guidelines**
+- Keep nodes focused on single responsibility
+- Provide comprehensive parameter validation
+- Include proper error handling
+- Document all parameters and behaviors
+
+---
+
+**Note**: This decoder system is designed to be extensible and maintainable. The node graph architecture makes it easy to add new processing capabilities while maintaining clean separation of concerns. 

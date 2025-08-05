@@ -55,6 +55,8 @@ add_library(kcobain_core STATIC
     src/core/audio_rb_controller.cpp
 )
 
+
+
 # Create USB audio library (separate from core)
 add_library(kcobain_usb STATIC
     src/core/usb_audio_producer.cpp
@@ -65,18 +67,21 @@ add_library(kcobain_usb STATIC
 # Link core library to USB library
 target_link_libraries(kcobain_usb kcobain_core)
 
-# Create main executable (only depends on USB library)
+
+
+# Create main executable (depends on USB library)
 add_executable(kcobain 
     src/main.cpp
 )
 
-# Link USB library to main executable
+# Link libraries to main executable
 target_link_libraries(kcobain kcobain_usb)
 
 # Link libraries based on platform
 if(APPLE)
     target_link_libraries(kcobain_core ${COREAUDIO_FRAMEWORK} ${AUDIOTOOLBOX_FRAMEWORK})
     target_link_libraries(kcobain_usb ${COREAUDIO_FRAMEWORK} ${AUDIOTOOLBOX_FRAMEWORK})
+
     target_link_libraries(kcobain ${COREAUDIO_FRAMEWORK} ${AUDIOTOOLBOX_FRAMEWORK})
 elseif(UNIX)
     target_link_libraries(kcobain_core ${ALSA_LIBRARIES})
@@ -86,6 +91,8 @@ elseif(UNIX)
     target_link_libraries(kcobain_usb ${ALSA_LIBRARIES})
     target_include_directories(kcobain_usb PRIVATE ${ALSA_INCLUDE_DIRS})
     target_compile_options(kcobain_usb PRIVATE ${ALSA_CFLAGS_OTHER})
+    
+
     
     target_link_libraries(kcobain ${ALSA_LIBRARIES})
     target_include_directories(kcobain PRIVATE ${ALSA_INCLUDE_DIRS})
@@ -97,6 +104,7 @@ endif()
 # Add math library (for sinf, etc.)
 target_link_libraries(kcobain_core m)
 target_link_libraries(kcobain_usb m)
+
 target_link_libraries(kcobain m)
 
 # Set output directory
