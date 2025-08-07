@@ -18,6 +18,7 @@ static ma_data_source_node decoder_node;
 static ma_loshelf_node low_eq_node;
 static ma_peak_node mid_eq_node;
 static ma_hishelf_node high_eq_node;
+static ma_biquad_node volume_node;
 static std::atomic<bool> eq_enabled(true);
 static std::atomic<ma_uint32> global_sample_rate(48000); // Default sample rate
 static std::atomic<ma_uint32> global_channels(2); // Default channel count
@@ -29,6 +30,10 @@ static std::atomic<ma_uint32> global_channels(2); // Default channel count
 static ma_decoder* global_decoder = nullptr;
 static std::atomic<ma_uint64> global_total_frames(0); // Cache total frames to avoid repeated calls
 static std::atomic<ma_uint64> decoder_position(0); // Track actual decoder position
+static const char* global_filename = nullptr; // Store filename for FLAC detection
+static ma_device* global_device = nullptr; // Store device pointer for pausing during seek
+
+
 
 // Seek function declaration
 bool seek_to_position(float seek_time_seconds);
@@ -58,7 +63,8 @@ char get_key_input() {
     return input;
 }
 
-// Seek function implementation
+
+
 bool seek_to_position(float seek_time_seconds) {
     if (!global_decoder) {
         std::cout << "Decoder not available for seeking" << std::endl;
@@ -82,6 +88,11 @@ bool seek_to_position(float seek_time_seconds) {
         seek_frame = global_total_frames.load() - 1;
     }
     
+    // Pause audio during seeking to prevent noise
+    if (global_device) {
+        ma_device_stop(global_device);
+    }
+    
     // Perform the seek operation
     ma_result seek_result = ma_decoder_seek_to_pcm_frame(global_decoder, seek_frame);
     
@@ -89,11 +100,20 @@ bool seek_to_position(float seek_time_seconds) {
         decoder_position.store(seek_frame);
         std::cout << "Seeked to " << seek_time_seconds << "s (frame " << seek_frame << ")" << std::endl;
         
-        // Reset position tracking for new position
+        // Resume audio after successful seek
+        if (global_device) {
+            ma_device_start(global_device);
+        }
         
         return true;
     } else {
         std::cout << "Failed to seek to position: " << seek_result << std::endl;
+        
+        // Resume audio even if seek failed
+        if (global_device) {
+            ma_device_start(global_device);
+        }
+        
         return false;
     }
 }
@@ -107,6 +127,9 @@ bool setup_node_graph(ma_decoder* decoder) {
         std::cout << "Failed to initialize node graph: " << result << std::endl;
         return false;
     }
+    
+    // All processing in 32-bit float format
+    std::cout << "✅ Using 32-bit float format throughout pipeline" << std::endl;
     
     // Initialize decoder node
     ma_data_source_node_config decoderNodeConfig = ma_data_source_node_config_init(decoder);
@@ -138,11 +161,20 @@ bool setup_node_graph(ma_decoder* decoder) {
         return false;
     }
     
-    // Connect nodes: decoder -> low EQ -> mid EQ -> high EQ -> endpoint
+    // Initialize volume node (simple gain filter)
+    ma_biquad_node_config volumeConfig = ma_biquad_node_config_init(decoder->outputChannels, current_volume.load(), 0.0f, 0.0f, 1.0f, 0.0f, 0.0f); // Unity gain initially
+    result = ma_biquad_node_init(&node_graph, &volumeConfig, NULL, &volume_node);
+    if (result != MA_SUCCESS) {
+        std::cout << "Failed to initialize volume node: " << result << std::endl;
+        return false;
+    }
+    
+    // Connect nodes: decoder -> low EQ -> mid EQ -> high EQ -> volume -> endpoint
     ma_node_attach_output_bus(&decoder_node, 0, &low_eq_node, 0);
     ma_node_attach_output_bus(&low_eq_node, 0, &mid_eq_node, 0);
     ma_node_attach_output_bus(&mid_eq_node, 0, &high_eq_node, 0);
-    ma_node_attach_output_bus(&high_eq_node, 0, ma_node_graph_get_endpoint(&node_graph), 0);
+    ma_node_attach_output_bus(&high_eq_node, 0, &volume_node, 0);
+    ma_node_attach_output_bus(&volume_node, 0, ma_node_graph_get_endpoint(&node_graph), 0);
     
     std::cout << "Node graph setup complete" << std::endl;
     return true;
@@ -150,24 +182,33 @@ bool setup_node_graph(ma_decoder* decoder) {
 
 // Enable/disable EQ nodes
 void enable_eq_node(bool enable) {
-    if (enable) {
+    if (enable) {  
         // Enable all nodes by setting their state to started
         ma_node_set_state(&decoder_node, ma_node_state_started);
         ma_node_set_state(&low_eq_node, ma_node_state_started);
         ma_node_set_state(&mid_eq_node, ma_node_state_started);
         ma_node_set_state(&high_eq_node, ma_node_state_started);
-        std::cout << "All nodes enabled" << std::endl;
+        ma_node_set_state(&volume_node, ma_node_state_started);
+        std::cout << "EQ chain enabled: decoder -> low EQ -> mid EQ -> high EQ -> volume" << std::endl;
     } else {
-        // Disable EQ nodes by setting their state to stopped
+        // Bypass EQ nodes by connecting decoder directly to volume
+        //ma_node_attach_output_bus(&decoder_node, 0, &volume_node, 0);
+        
+        // Ensure decoder and volume nodes are enabled
+        ma_node_set_state(&decoder_node, ma_node_state_started);
+        ma_node_set_state(&volume_node, ma_node_state_started);
+        
+        // Stop EQ nodes (they're not in the signal path anymore)
         ma_node_set_state(&low_eq_node, ma_node_state_stopped);
         ma_node_set_state(&mid_eq_node, ma_node_state_stopped);
         ma_node_set_state(&high_eq_node, ma_node_state_stopped);
-        std::cout << "EQ nodes disabled" << std::endl;
+        std::cout << "EQ bypassed: decoder -> volume (EQ nodes stopped)" << std::endl;
     }
 }
 
 // Cleanup node graph
 void cleanup_node_graph() {
+    ma_biquad_node_uninit(&volume_node, NULL);
     ma_hishelf_node_uninit(&high_eq_node, NULL);
     ma_peak_node_uninit(&mid_eq_node, NULL);
     ma_loshelf_node_uninit(&low_eq_node, NULL);
@@ -193,6 +234,28 @@ void update_high_eq_node(float frequency, float gain) {
 
 void update_volume(float volume) {
     current_volume.store(volume);
+    
+    // Update the volume node with new gain
+    // We need to reinitialize the volume node with new coefficients
+    ma_biquad_node_config volumeConfig = ma_biquad_node_config_init(
+        global_channels.load(), 
+        volume,  // b0 coefficient (gain)
+        0.0f,    // b1 coefficient
+        0.0f,    // b2 coefficient
+        1.0f,    // a0 coefficient
+        0.0f,    // a1 coefficient
+        0.0f     // a2 coefficient
+    );
+    
+    // Reinitialize the volume node with new coefficients
+    ma_biquad_node_uninit(&volume_node, NULL);
+    ma_result result = ma_biquad_node_init(&node_graph, &volumeConfig, NULL, &volume_node);
+    if (result == MA_SUCCESS) {
+        // Reconnect the volume node
+        ma_node_attach_output_bus(&high_eq_node, 0, &volume_node, 0);
+        ma_node_attach_output_bus(&volume_node, 0, ma_node_graph_get_endpoint(&node_graph), 0);
+        ma_node_set_state(&volume_node, ma_node_state_started);
+    }
 }
 
 // Keyboard input handling thread
@@ -235,6 +298,7 @@ void keyboard_input_thread() {
             case 'E': {
                 bool new_eq_state = !eq_enabled.load();
                 eq_enabled.store(new_eq_state);
+                enable_eq_node(new_eq_state);
                 std::cout << "EQ: " << (new_eq_state ? "ON" : "OFF") << std::endl;
                 std::cout << "Enter command: ";
                 break;
@@ -409,10 +473,10 @@ void keyboard_input_thread() {
     }
 }
 
-// Simplified callback using node graph - single thread processing
+// Solution for Seeking Synchronization Issue: Thread-safe callback
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
-    // Read from the node graph - all processing is handled internally
+    // Read from the node graph - all processing (including volume) is handled internally
     ma_result result = ma_node_graph_read_pcm_frames(&node_graph, pOutput, frameCount, NULL);
     
     if (result != MA_SUCCESS) {
@@ -422,16 +486,6 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
         static int error_count = 0;
         if (++error_count % 1000 == 0) {
             std::cout << "Node graph read error: " << result << std::endl;
-        }
-    } else {
-        // Apply volume control
-        float volume = current_volume.load();
-        if (volume != 1.0f) {
-            float* samples = (float*)pOutput;
-            ma_uint32 totalSamples = frameCount * pDevice->playback.channels;
-            for (ma_uint32 i = 0; i < totalSamples; ++i) {
-                samples[i] *= volume;
-            }
         }
     }
     
@@ -455,8 +509,8 @@ int main(int argc, char** argv)
     ma_decoder decoder;
     ma_device device;
 
-    // Init decoder
-    ma_decoder_config decoderConfig = ma_decoder_config_init(ma_format_f32, 0, 0); // auto-detect channels and sample rate
+    // Init decoder with 32-bit float format for consistency
+    ma_decoder_config decoderConfig = ma_decoder_config_init(ma_format_f32, 0, 0); // Use 32-bit float
     result = ma_decoder_init_file(filePath, &decoderConfig, &decoder);
     if (result != MA_SUCCESS) {
         std::cerr << "Failed to initialize decoder for file: " << filePath << std::endl;
@@ -469,7 +523,24 @@ int main(int argc, char** argv)
     global_sample_rate.store(decoder.outputSampleRate);
     global_channels.store(decoder.outputChannels);
     global_decoder = &decoder;
+    global_filename = filePath; // Store filename for FLAC detection
     decoder_position.store(0); // Initialize decoder position
+    
+    // Display format information for debugging
+    std::cout << "🎵 File Format Information:" << std::endl;
+    std::cout << "   Sample Rate: " << decoder.outputSampleRate << " Hz" << std::endl;
+    std::cout << "   Channels: " << decoder.outputChannels << std::endl;
+    std::cout << "   Format: ";
+    switch (decoder.outputFormat) {
+        case ma_format_unknown: std::cout << "Unknown"; break;
+        case ma_format_u8: std::cout << "8-bit Unsigned"; break;
+        case ma_format_s16: std::cout << "16-bit Signed"; break;
+        case ma_format_s24: std::cout << "24-bit Signed"; break;
+        case ma_format_s32: std::cout << "32-bit Signed"; break;
+        case ma_format_f32: std::cout << "32-bit Float"; break;
+        default: std::cout << "Other"; break;
+    }
+    std::cout << std::endl;
     
     // Note: Legacy EQ filters are no longer initialized since we use the node graph system
     // The node graph handles all EQ processing more efficiently
@@ -478,6 +549,9 @@ int main(int argc, char** argv)
     ma_uint64 total_frames = 0;
     ma_decoder_get_length_in_pcm_frames(&decoder, &total_frames);
     global_total_frames.store(total_frames);
+    
+    // Reset position tracking for new file
+    decoder_position.store(0);
 
     // Set up the node graph - THIS IS CRITICAL FOR AUDIO PLAYBACK
     if (!setup_node_graph(&decoder)) {
@@ -489,9 +563,9 @@ int main(int argc, char** argv)
     // Enable EQ nodes
     enable_eq_node(eq_enabled.load());
 
-    // Init playback device
+    // Init playback device (will use float32 format from decoder)
     ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
-    deviceConfig.playback.format   = decoder.outputFormat;
+    deviceConfig.playback.format   = decoder.outputFormat;  // Will be float32
     deviceConfig.playback.channels = decoder.outputChannels;
     deviceConfig.sampleRate        = decoder.outputSampleRate;
     deviceConfig.dataCallback      = data_callback;
@@ -508,6 +582,9 @@ int main(int argc, char** argv)
         ma_decoder_uninit(&decoder);
         return -1;
     }
+    
+    // Store device pointer for seeking operations
+    global_device = &device;
 
     result = ma_device_start(&device);
     if (result != MA_SUCCESS) {

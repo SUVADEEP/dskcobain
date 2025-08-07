@@ -101,10 +101,7 @@ elseif(WIN32)
     # Windows doesn't need additional libraries for miniaudio
 endif()
 
-# Add math library (for sinf, etc.)
-target_link_libraries(kcobain_core m)
-target_link_libraries(kcobain_usb m)
-
+# Add math library (for sinf, etc.) - only link to the main executable
 target_link_libraries(kcobain m)
 
 # Set output directory
