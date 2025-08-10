@@ -61,7 +61,8 @@ If you prefer manual build:
 
 2. **Configure with CMake:**
    ```cmd
-   cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -f ../CMakeLists_Windows.txt ..
+   copy ..\CMakeLists_Windows.txt ..\CMakeLists.txt
+   cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..
    ```
 
 3. **Build the project:**
@@ -79,17 +80,20 @@ If you prefer manual build:
 
 ### Release Build (Default)
 ```cmd
-cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -f ../CMakeLists_Windows.txt ..
+copy ..\CMakeLists_Windows.txt ..\CMakeLists.txt
+cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 ```
 
 ### Debug Build
 ```cmd
-cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug -f ../CMakeLists_Windows.txt ..
+copy ..\CMakeLists_Windows.txt ..\CMakeLists.txt
+cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug ..
 ```
 
 ### RelWithDebInfo Build
 ```cmd
-cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo -f ../CMakeLists_Windows.txt ..
+copy ..\CMakeLists_Windows.txt ..\CMakeLists.txt
+cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 ```
 
 ## Troubleshooting

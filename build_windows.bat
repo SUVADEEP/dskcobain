@@ -38,8 +38,11 @@ REM Create build directory
 if not exist "build_windows" mkdir build_windows
 cd build_windows
 
+REM Copy Windows CMakeLists to standard name
+copy ..\CMakeLists_Windows.txt ..\CMakeLists.txt >nul
+
 echo Creating build files...
-cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -f ../CMakeLists_Windows.txt ..
+cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 
 if errorlevel 1 (
     echo ERROR: CMake configuration failed
