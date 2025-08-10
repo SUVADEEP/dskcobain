@@ -7,13 +7,16 @@ if(WIN32)
     set(CMAKE_C_COMPILER gcc)
     set(CMAKE_CXX_COMPILER g++)
     
+    # Find threading library
+    find_package(Threads REQUIRED)
+    
     # Set C++ standard to C++11 (compatible with GCC 6.3.0)
     set(CMAKE_CXX_STANDARD 11)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
     set(CMAKE_CXX_EXTENSIONS OFF)
     
     # Windows-specific compiler flags for GCC 6.3.0
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -O2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -O2 -pthread")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -O2")
     
     # Windows-specific definitions
@@ -38,11 +41,11 @@ if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
     
     # Enable debug symbols in debug builds
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -pthread")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0")
     
     # Optimize release builds
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG -pthread")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -DNDEBUG")
     
     message(STATUS "Windows GCC build configuration detected")
@@ -99,8 +102,10 @@ if(WIN32)
     target_link_libraries(kcobain_usb kernel32 user32 gdi32 winspool shell32 ole32 oleaut32 uuid comdlg32 advapi32)
     target_link_libraries(kcobain kernel32 user32 gdi32 winspool shell32 ole32 oleaut32 uuid comdlg32 advapi32)
     
-    # Add math library for Windows GCC
-    target_link_libraries(kcobain m)
+    # Add math and threading libraries for Windows GCC
+    target_link_libraries(kcobain m ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(kcobain_core ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(kcobain_usb ${CMAKE_THREAD_LIBS_INIT})
     
     # Set Windows-specific properties
     set_target_properties(kcobain PROPERTIES
