@@ -550,7 +550,7 @@ int main(int argc, char** argv)
     ma_decoder_get_length_in_pcm_frames(&decoder, &total_frames);
     global_total_frames.store(total_frames);
     
-    // Reset position tracking for new file
+    // Reset position tracking for new file gaurd rail
     decoder_position.store(0);
 
     // Set up the node graph - THIS IS CRITICAL FOR AUDIO PLAYBACK
@@ -597,7 +597,7 @@ int main(int argc, char** argv)
     // Start keyboard input thread
     std::thread keyboard_thread(keyboard_input_thread);
 
-    // Wait for exit signal
+    // Wait for exit signal this preventing the program from exiting
     while (!should_exit.load()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
